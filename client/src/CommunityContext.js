@@ -7,9 +7,9 @@ export function CommunityContextProvider({children}){
     const[show,setShow]=useState(false);
     const[community,setCommunity]=useState();
     const[communityInfo,setCommunityInfo]=useState({});
-
     useEffect(()=>{
         if(!community){
+            setCommunityInfo({});
             return;
         }
         else{

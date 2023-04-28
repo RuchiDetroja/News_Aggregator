@@ -9,6 +9,7 @@ import User from './models/User.js';
 import Comment from './models/Comment.js';
 import VotingRoutes from './VotingRoutes.js'
 import CommmunityRoutes from './CommunityRoutes.js';
+import Community from './models/Community.js';
 
 const secret = 'secret123';
 const app = express();
@@ -118,19 +119,43 @@ app.post('/logout', (req, res) => {
 });
 
 app.get('/comments', (req, res)=>{
-      const {search,community} = req.query;
-     let filters = search
-     ? {body: {$regex: '.*'+search+'.*'}}
-     : {rootId:null};
-     
+     const search = req.query.search;
+     const community=req.query.community;
+     let filters;
+     console.log("search ",search);
+     console.log("community ",community);
      if(community){
-          filters.community="test";
+          if(search){
+               filters={"$and":[{body: {$regex: '.*'+search+'.*'}},{community:community}]};
+          }
+          else{
+               filters={community:community};
+          }
      }
-
-     Comment.find(filters).sort({postedAt: -1}).then(comments =>{
+     else{
+          if(search){
+               filters={body: {$regex: '.*'+search+'.*'}};
+          }
+          else{
+               filters={rootId:null}
+          }
+     }
+     
+     Comment.find(filters).sort({postedAt: -1}).then(comments => {
           res.json(comments);
      });
 });
+
+app.get('/search', (req, res)=>{
+     const {phrase}= req.query;
+     Comment.find({body: {$regex: '.*'+phrase+'.*'}}).sort({postedAt: -1}).then(comments => {
+          Community.find({name: {$regex: '.*'+phrase+'.*'}}).then(communities=>{
+               res.json({comments,communities});
+          })
+     });
+});
+
+
 
 app.get('/comments/root/:rootId', (req, res)=>{
      Comment.find({rootId: req.params.rootId}).sort({postedAt: -1}).then(comments =>{
@@ -152,10 +177,11 @@ app.post('/comments', (req, res)=>{
           return;
      }
      getUserFromToken(token).then(userInfo=>{
-          const {title,body,parentId,rootId} = req.body;
+          const {title,body,parentId,rootId,community} = req.body;
           const comment = new Comment({
           title,
           body,
+          community,
           author:userInfo.username,
           postedAt:new Date(),
           parentId,

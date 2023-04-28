@@ -7,11 +7,13 @@ import PostFormModalContext from './PostFormModalContext.js';
 import axios from 'axios';
 import AuthModalContext from './AuthModalContext';
 import {Navigate} from 'react-router-dom';
+import { CommunityContext } from "./CommunityContext.js";
 
 
 function PostFormModal(){
     const modalContext= useContext(PostFormModalContext);
     const authModalContext= useContext(AuthModalContext);
+    const {community} = useContext(CommunityContext);
 
     const visibleClass = modalContext.show? 'block': 'hidden';
 
@@ -20,8 +22,8 @@ function PostFormModal(){
     const [newPostId, setNewPostId]= useState(null);
 
     function createPost(){
-        const data= {title, body};
-        axios.post('http://localhost:4000/comments', data, {withCredentials:true}).then(response =>{
+        const data= {title, body,community};
+        axios.post('/comments', data, {withCredentials:true}).then(response =>{
             setNewPostId(response.data._id);
         }).catch(error=>{
             if(error.response.status===401){

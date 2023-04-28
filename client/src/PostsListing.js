@@ -14,6 +14,7 @@ function PostsListing(){
             url+= '?community=' +community;
         }
         axios.get(url, { withCredentials: true }).then(response => setComments(response.data));
+        
     }, [community]);
 
     return(
