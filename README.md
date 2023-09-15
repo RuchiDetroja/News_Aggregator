@@ -1,1 +1,1 @@
-# News Aggregator application
+# News Aggregator Application
