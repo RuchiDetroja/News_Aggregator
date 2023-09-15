@@ -1,1 +1,1 @@
-# IT314_project_4
+# News Aggregator application
